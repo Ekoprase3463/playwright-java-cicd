@@ -26,8 +26,8 @@ jobs:
 
       - name: 🌐 Install Playwright Browsers & OS Dependencies
         run: |
-          mvn test-compile
-          mvn exec:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args="install --with-deps" -D exec.classpathScope=test
+          mvn compile
+          mvn exec:java -e -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps chromium"
 
       - name: 🧪 Execute Playwright Tests
         run: mvn test -Dheadless=true
