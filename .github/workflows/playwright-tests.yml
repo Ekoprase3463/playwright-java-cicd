@@ -1,0 +1,60 @@
+name: Playwright Java E2E Automation CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  playwright-e2e-tests:
+    name: 🎭 Playwright Automation Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+
+      - name: 🌐 Install Playwright Browsers & OS Dependencies
+        run: |
+          mvn test-compile
+          mvn exec:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args="install --with-deps" -D exec.classpathScope=test
+
+      - name: 🧪 Execute Playwright Tests
+        run: mvn test -Dheadless=true
+
+      # Step Upload Video Rekaman Chromium
+      - name: 📹 Upload Rekaman Video Chromium
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-videos
+          path: target/playwright-videos/
+          retention-days: 7
+
+      # Step Upload Playwright Traces
+      - name: 🎬 Upload Playwright Traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: target/playwright-traces/
+          retention-days: 7
+
+      # Step Upload Surefire Reports
+      - name: 📊 Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-test-reports
+          path: target/surefire-reports/
+          retention-days: 14
